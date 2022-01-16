@@ -1,3 +1,4 @@
 reaktor_env/
 instance/
-src/__pycache__/
+rpc/__pycache__/
+rpc/database.db

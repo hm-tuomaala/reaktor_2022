@@ -1,0 +1,162 @@
+import sqlite3
+import requests
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
+API_BASE = "bad-api-assignment.reaktor.com"
+
+def get_winner(a, b):
+    win = {
+        "SCISSORS" : "PAPER",
+        "PAPER" : "ROCK",
+        "ROCK" : "SCISSORS"
+    }
+
+    if a["played"] == b["played"]:
+        return "Tie"
+    else:
+        return a["name"] if win[a["played"]] == b["played"] else b["name"]
+
+
+def get_db_connection():
+    conn = sqlite3.connect("rpc/database.db")
+    # conn.row_factory = sqlite3.Row
+    return conn
+
+def query_db(query, args=(), one=False):
+    cur = get_db_connection().execute(query, args)
+    rv = cur.fetchall()
+    cur.close()
+    return (rv[0] if rv else None) if one else rv
+
+def update_db_from_history():
+    api = "https://" + API_BASE
+    cursor = "/rps/history"
+    conn = get_db_connection()
+    conn.execute("BEGIN TRANSACTION")
+    try:
+        while cursor:
+            d = requests.get(api + cursor).json()
+            for game in d["data"]:
+                id = game["gameId"]
+                type = game["type"]
+                time = game["t"]
+                player_a = game["playerA"]
+                player_b = game["playerB"]
+
+                if player_a["name"] != player_b["name"]:
+                    winner = get_winner(player_a, player_b)
+
+                    conn.execute(
+                    "INSERT INTO games (id, time, winner) VALUES (?, ?, ?)",
+                    (id, time, winner)
+                    )
+
+                    conn.execute(
+                    "INSERT OR IGNORE INTO players (id) VALUES (?)",
+                    (player_a["name"],)
+                    )
+
+                    conn.execute(
+                    "INSERT OR IGNORE INTO players (id) VALUES (?)",
+                    (player_b["name"],)
+                    )
+
+                    conn.execute(
+                    "INSERT INTO games_players (player_id, game_id) VALUES (?, ?)",
+                    (player_a["name"], id)
+                    )
+
+                    conn.execute(
+                    "INSERT INTO games_players (player_id, game_id) VALUES (?, ?)",
+                    (player_b["name"], id)
+                    )
+
+            cursor = d["cursor"]
+            count += 1
+            print(f"{count: } {cursor}")
+
+        conn.commit()
+        conn.close()
+
+    except sqlite3.IntegrityError:
+        conn.commit()
+        conn.close()
+        print("Database is now up to date")
+
+def init_db_from_history():
+    api = "https://" + API_BASE
+    cursor = "/rps/history"
+    conn = get_db_connection()
+    count = 0
+    conn.execute("BEGIN TRANSACTION")
+
+    while cursor:
+        d = requests.get(api + cursor).json()
+        for game in d["data"]:
+            id = game["gameId"]
+            type = game["type"]
+            time = game["t"]
+            player_a = game["playerA"]
+            player_b = game["playerB"]
+
+            if player_a["name"] != player_b["name"]:
+                winner = get_winner(player_a, player_b)
+
+                conn.execute(
+                "INSERT INTO games (id, time, winner) VALUES (?, ?, ?)",
+                (id, time, winner)
+                )
+
+                conn.execute(
+                "INSERT OR IGNORE INTO players (id) VALUES (?)",
+                (player_a["name"],)
+                )
+
+                conn.execute(
+                "INSERT OR IGNORE INTO players (id) VALUES (?)",
+                (player_b["name"],)
+                )
+
+                conn.execute(
+                "INSERT INTO games_players (player_id, game_id) VALUES (?, ?)",
+                (player_a["name"], id)
+                )
+
+                conn.execute(
+                "INSERT INTO games_players (player_id, game_id) VALUES (?, ?)",
+                (player_b["name"], id)
+                )
+
+        cursor = d["cursor"]
+        count += 1
+        print(f"{count: } {cursor}")
+
+    conn.commit()
+    conn.close()
+
+@app.route('/')
+def index():
+    # populate_db_from_history()
+
+    newest_game = query_db(
+        """SELECT id, time, winner
+           FROM games
+           ORDER BY time DESC
+           LIMIT 1 """
+    )[0][0]
+
+    print(newest_game)
+
+    return "DONE"
+
+@app.route('/update')
+def update():
+    update_db_from_history()
+    return "UPDATED"
+
+@app.route("/init")
+def init_db():
+    init_db_from_history()
+    return "INITIALIZED"    

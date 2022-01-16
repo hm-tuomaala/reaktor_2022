@@ -24,16 +24,17 @@ def get_db_connection():
     # conn.row_factory = sqlite3.Row
     return conn
 
-def query_db(query, args=(), one=False):
-    cur = get_db_connection().execute(query, args)
+def query_db(query):
+    cur = get_db_connection().execute(query)
     rv = cur.fetchall()
     cur.close()
-    return (rv[0] if rv else None) if one else rv
+    return rv
 
 def update_db_from_history():
     api = "https://" + API_BASE
     cursor = "/rps/history"
     conn = get_db_connection()
+    count = 0
     conn.execute("BEGIN TRANSACTION")
     try:
         while cursor:
@@ -85,66 +86,15 @@ def update_db_from_history():
         conn.close()
         print("Database is now up to date")
 
-def init_db_from_history():
-    api = "https://" + API_BASE
-    cursor = "/rps/history"
-    conn = get_db_connection()
-    count = 0
-    conn.execute("BEGIN TRANSACTION")
-
-    while cursor:
-        d = requests.get(api + cursor).json()
-        for game in d["data"]:
-            id = game["gameId"]
-            type = game["type"]
-            time = game["t"]
-            player_a = game["playerA"]
-            player_b = game["playerB"]
-
-            if player_a["name"] != player_b["name"]:
-                winner = get_winner(player_a, player_b)
-
-                conn.execute(
-                "INSERT INTO games (id, time, winner) VALUES (?, ?, ?)",
-                (id, time, winner)
-                )
-
-                conn.execute(
-                "INSERT OR IGNORE INTO players (id) VALUES (?)",
-                (player_a["name"],)
-                )
-
-                conn.execute(
-                "INSERT OR IGNORE INTO players (id) VALUES (?)",
-                (player_b["name"],)
-                )
-
-                conn.execute(
-                "INSERT INTO games_players (player_id, game_id) VALUES (?, ?)",
-                (player_a["name"], id)
-                )
-
-                conn.execute(
-                "INSERT INTO games_players (player_id, game_id) VALUES (?, ?)",
-                (player_b["name"], id)
-                )
-
-        cursor = d["cursor"]
-        count += 1
-        print(f"{count: } {cursor}")
-
-    conn.commit()
-    conn.close()
 
 @app.route('/')
 def index():
-    # populate_db_from_history()
 
     newest_game = query_db(
         """SELECT id, time, winner
            FROM games
            ORDER BY time DESC
-           LIMIT 1 """
+           LIMIT 3"""
     )[0][0]
 
     print(newest_game)
@@ -154,9 +104,4 @@ def index():
 @app.route('/update')
 def update():
     update_db_from_history()
-    return "UPDATED"
-
-@app.route("/init")
-def init_db():
-    init_db_from_history()
-    return "INITIALIZED"    
+    return "DATABASE UPDATED"

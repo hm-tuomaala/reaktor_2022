@@ -1,5 +1,6 @@
 import sqlite3
 import requests
+import json
 from flask import Flask, render_template
 
 app = Flask(__name__)
@@ -39,6 +40,7 @@ def update_db_from_history():
     try:
         while cursor:
             d = requests.get(api + cursor).json()
+            d["data"] = sorted(d["data"], key=lambda x: -x['t'])
             for game in d["data"]:
                 id = game["gameId"]
                 type = game["type"]
@@ -89,19 +91,19 @@ def update_db_from_history():
 
 @app.route('/')
 def index():
+    api = "https://" + API_BASE + "/rps/history"
+    d = requests.get(api).json()
+    d["data"] = sorted(d["data"], key=lambda x: -x['t'])
 
-    newest_game = query_db(
-        """SELECT id, time, winner
-           FROM games
-           ORDER BY time DESC
-           LIMIT 3"""
-    )[0][0]
-
-    print(newest_game)
-
-    return "DONE"
+    return json.dumps(d["data"])
 
 @app.route('/update')
 def update():
     update_db_from_history()
     return "DATABASE UPDATED"
+
+
+@app.route("/history")
+@app.route("/history/<name>")
+def history(name = None):
+    return render_template('history.html', name = name)

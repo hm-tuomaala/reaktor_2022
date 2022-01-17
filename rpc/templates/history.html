@@ -1,18 +1,47 @@
 {% extends 'index.html' %}
 
 {% block content %}
+    <div class="container justify-content-center">
+        <div class="row justify-content-center align-items-center">
+            <div class="col justify-content-center align-items-center">
+                <h1 class="overflow-auto pt-4 pb-4"><strong> {{ data.name }} </strong></h1>
+            </div>
+            <div class="col pt-4 pb-4 justify-content-center">
 
-    <h1 class="overflow-auto pt-3 pb-4"><strong> {{ data.name }} </strong></h1>
-    <p>Win ratio: {{ data.ratio }}</p>
-    <p>Total wins: {{ data.total }}</p>
-    {% for game in data.games %}
-    {% if game.3 == data.name %}
-      <p>WIN! {{ game.0 }} {{ game.1 }} {{ game.2 }} {{ game.4 }}</p>
-    {% elif game.3 == 'Tie' %}
-      <p>TIE! {{ game.0 }} {{ game.1 }} {{ game.2 }} {{ game.4 }}</p>
-    {% else %}
-      <p>LOST! {{ game.0 }} {{ game.1 }} {{ game.2 }} {{ game.4 }}</p>
-    {% endif %}
-    {% endfor %}
+                <h2 class="sub-header">Stats</h2>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="col-md-6">Wins</th>
+                                <th class="col-md-6">Win ratio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="col-md-6">{{data.total}}</td>
+                                <td class="col-md-6">{{data.ratio}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                 </div>
 
+                <!-- <p><strong>Win ratio: {{ data.ratio }}</strong></p>
+                <p><strong>Total wins: {{ data.total }}</strong></p> -->
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row justify-content-center">
+        {% for game in data.games %}
+        {% if game.3 == data.name %}
+          <p class="">WIN! {{ game.0 }} {{ game.1 }} {{ game.2 }} {{ game.4 }}</p>
+        {% elif game.3 == 'Tie' %}
+          <p>TIE! {{ game.0 }} {{ game.1 }} {{ game.2 }} {{ game.4 }}</p>
+        {% else %}
+          <p>LOST! {{ game.0 }} {{ game.1 }} {{ game.2 }} {{ game.4 }}</p>
+        {% endif %}
+        {% endfor %}
+        </div>
+    </div>
 {% endblock %}

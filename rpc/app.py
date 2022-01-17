@@ -101,7 +101,6 @@ def index():
     api = "https://" + API_BASE + "/rps/history"
     d = requests.get(api).json()
     d["data"] = sorted(d["data"], key=lambda x: -x['t'])
-
     return json.dumps(d["data"])
 
 @app.route('/update')

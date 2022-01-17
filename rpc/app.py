@@ -80,12 +80,12 @@ def update_db_from_history():
                     )
 
                     conn.execute(
-                        "INSERT INTO games_players (player_id, game_id) VALUES (?, ?)",
+                        "INSERT INTO games_players (player_name, game_id) VALUES (?, ?)",
                         (player_a["name"], id)
                     )
 
                     conn.execute(
-                        "INSERT INTO games_players (player_id, game_id) VALUES (?, ?)",
+                        "INSERT INTO games_players (player_name, game_id) VALUES (?, ?)",
                         (player_b["name"], id)
                     )
 
@@ -123,22 +123,49 @@ def update():
 @app.route("/players")
 def players():
     names = query_db(
-        """SELECT name
-           FROM players
-           ORDER BY name ASC"""
+        """ SELECT name
+              FROM players
+             ORDER BY name ASC """
     )
     names = ["%s" % x for x in names]
     return render_template("players.html", names = names)
 
 @app.route("/players/<name>")
 def player(name):
-    player = query_db(
-        """SELECT name
-           FROM players
-           WHERE name = ?""",
-           (name,)
+    data = {}
+    games = query_db(
+        """ SELECT p1.game_id AS id,
+                   p1.player_name AS player1,
+                   p2.player_name AS player2,
+                   g.winner,
+                   g.time
+              FROM games_players p1
+              JOIN games_players p2
+                ON p1.game_id = p2.game_id
+              JOIN games g
+                ON p1.game_id = g.id
+             WHERE p1.player_name <> p2.player_name
+               AND p1.player_name = ?
+             ORDER BY g.time DESC """,
+        (name,)
     )
-    return player[0][0] if player else f"{name} not found"
+
+    wins = query_db(
+        """ SELECT COUNT(*) AS wins
+              FROM games
+             WHERE winner = ? """,
+        (name,)
+    )
+
+    try:
+        data["games"] = games
+        data["name"] = games[0][1]
+        data["total"] = wins[0][0]
+        data["ratio"] = "%.4f" % (data["total"] / len(data["games"]))
+    except IndexError:
+        # Searched person was not found in the database
+        return f"{name} was not found in the database"
+    return render_template("history.html", data = data)
 
 @app.route("/live")
 def live():

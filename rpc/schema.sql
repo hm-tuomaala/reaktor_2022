@@ -9,16 +9,15 @@ CREATE TABLE games (
 );
 
 CREATE TABLE players (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT UNIQUE NOT NULL,
+  name TEXT UNIQUE PRIMARY KEY,
   slug TEXT UNIQUE NOT NULL
 );
 
 CREATE TABLE games_players (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  player_id INTEGER NOT NULL,
+  player_name INTEGER NOT NULL,
   game_id TEXT NOT NULL,
-  FOREIGN KEY (player_id) REFERENCES players (id),
+  FOREIGN KEY (player_name) REFERENCES players (name),
   FOREIGN KEY (game_id) REFERENCES games (id)
-  UNIQUE(player_id, game_id)
+  UNIQUE(player_name, game_id)
 );

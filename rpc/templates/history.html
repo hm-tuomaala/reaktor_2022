@@ -1,0 +1,18 @@
+{% extends 'index.html' %}
+
+{% block content %}
+
+    <h1 class="overflow-auto pt-3 pb-4"><strong> {{ data.name }} </strong></h1>
+    <p>Win ratio: {{ data.ratio }}</p>
+    <p>Total wins: {{ data.total }}</p>
+    {% for game in data.games %}
+    {% if game.3 == data.name %}
+      <p>WIN! {{ game.0 }} {{ game.1 }} {{ game.2 }} {{ game.4 }}</p>
+    {% elif game.3 == 'Tie' %}
+      <p>TIE! {{ game.0 }} {{ game.1 }} {{ game.2 }} {{ game.4 }}</p>
+    {% else %}
+      <p>LOST! {{ game.0 }} {{ game.1 }} {{ game.2 }} {{ game.4 }}</p>
+    {% endif %}
+    {% endfor %}
+
+{% endblock %}

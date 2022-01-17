@@ -11,14 +11,7 @@ app = Flask(__name__)
 API_BASE = "bad-api-assignment.reaktor.com"
 
 scheduler = APScheduler()
-scheduler.api_enabled = True
-scheduler.init_app(app)
-scheduler.start()
 
-@scheduler.task('interval', id='background_update_db', minutes=5, misfire_grace_time=900)
-def background_update_db():
-    print("background update...")
-    update_db_from_history()
 
 
 def get_winner(a, b):
@@ -108,6 +101,11 @@ def update_db_from_history():
         conn.close()
         print("Database is now up to date")
 
+def background_update_db():
+    print("background update...")
+    update_db_from_history()
+
+
 
 @app.route('/')
 def index():
@@ -150,4 +148,10 @@ def live():
 if __name__ == "__main__":
     # Database must be up to date before serving clients
     update_db_from_history()
+
+    scheduler.api_enabled = True
+    scheduler.init_app(app)
+    scheduler.add_job(id = 'background_update_db', func=background_update_db, trigger="interval", seconds=30, misfire_grace_time=900)
+    scheduler.start()
+
     app.run()

@@ -5,9 +5,7 @@
     <h1 class="overflow-auto pt-3 pb-4"><strong> Players </strong></h1>
 
     {% for name in names %}
-
-      <p>{{ name }}</p>
-
+      <a a class="nav-link" href="{{ url_for('player', name=name ) }}">{{ name }}</a>
     {% endfor %}
 
 {% endblock %}

@@ -1,6 +1,7 @@
 import sqlite3
 import requests
 import json
+import unidecode
 from flask import Flask, render_template
 
 app = Flask(__name__)
@@ -25,8 +26,8 @@ def get_db_connection():
     # conn.row_factory = sqlite3.Row
     return conn
 
-def query_db(query):
-    cur = get_db_connection().execute(query)
+def query_db(query, args = ()):
+    cur = get_db_connection().execute(query, args)
     rv = cur.fetchall()
     cur.close()
     return rv
@@ -52,28 +53,34 @@ def update_db_from_history():
                     winner = get_winner(player_a, player_b)
 
                     conn.execute(
-                    "INSERT INTO games (id, time, winner) VALUES (?, ?, ?)",
-                    (id, time, winner)
+                        "INSERT INTO games (id, time, winner) VALUES (?, ?, ?)",
+                        (id, time, winner)
                     )
 
                     conn.execute(
-                    "INSERT OR IGNORE INTO players (id) VALUES (?)",
-                    (player_a["name"],)
+                        "INSERT OR IGNORE INTO players (name, slug) VALUES (?, ?)",
+                        (
+                            player_a["name"],
+                            unidecode.unidecode(player_a["name"].lower().replace(" ", "-"))
+                        )
                     )
 
                     conn.execute(
-                    "INSERT OR IGNORE INTO players (id) VALUES (?)",
-                    (player_b["name"],)
+                        "INSERT OR IGNORE INTO players (name, slug) VALUES (?, ?)",
+                        (
+                            player_b["name"],
+                            unidecode.unidecode(player_b["name"].lower().replace(" ", "-"))
+                        )
                     )
 
                     conn.execute(
-                    "INSERT INTO games_players (player_id, game_id) VALUES (?, ?)",
-                    (player_a["name"], id)
+                        "INSERT INTO games_players (player_id, game_id) VALUES (?, ?)",
+                        (player_a["name"], id)
                     )
 
                     conn.execute(
-                    "INSERT INTO games_players (player_id, game_id) VALUES (?, ?)",
-                    (player_b["name"], id)
+                        "INSERT INTO games_players (player_id, game_id) VALUES (?, ?)",
+                        (player_b["name"], id)
                     )
 
             cursor = d["cursor"]
@@ -103,7 +110,27 @@ def update():
     return "DATABASE UPDATED"
 
 
-@app.route("/history")
-@app.route("/history/<name>")
-def history(name = None):
-    return render_template('history.html', name = name)
+@app.route("/players")
+def players():
+    names = query_db(
+        """SELECT name
+           FROM players
+           ORDER BY name ASC"""
+    )
+    names = ["%s" % x for x in names]
+    return render_template("players.html", names = names)
+
+@app.route("/players/<name>")
+def player(name):
+    player = query_db(
+        """SELECT name
+           FROM players
+           WHERE slug = ?""",
+           (name,)
+    )
+    print(player)
+    return player[0][0] if player else f"{name} not found"
+
+@app.route("/live")
+def live():
+    return render_template("live.html")

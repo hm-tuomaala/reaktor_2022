@@ -1,0 +1,13 @@
+{% extends 'index.html' %}
+
+{% block content %}
+
+    <h1 class="overflow-auto pt-3 pb-4"><strong> Players </strong></h1>
+
+    {% for name in names %}
+
+      <p>{{ name }}</p>
+
+    {% endfor %}
+
+{% endblock %}

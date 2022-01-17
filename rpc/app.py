@@ -142,7 +142,7 @@ def player(name):
 
 @app.route("/live")
 def live():
-    return render_template("live.html")
+    return render_template("live.html", api = "ws://" + API_BASE + "/rps/live")
 
 if __name__ == "__main__":
     # Database must be up to date before serving clients

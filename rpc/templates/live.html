@@ -1,1 +1,14 @@
-<p> Live </p>
+<p> Live @ {{api}} </p>
+
+<script type="text/javascript">
+       var ws = new WebSocket("{{api}}");
+       ws.onopen = function() {
+           console.log("socket open");
+       };
+       ws.onclose = function(evt) {
+           console.log("socket closed");
+       };
+       ws.onmessage = function(evt) {
+           console.log(evt.data);
+       };
+</script>

@@ -1,7 +1,7 @@
 import sqlite3
 import requests
 import json
-import unidecode
+import urllib.parse
 import atexit
 from flask import Flask, render_template
 from flask_apscheduler import APScheduler
@@ -67,7 +67,7 @@ def update_db_from_history():
                         "INSERT OR IGNORE INTO players (name, slug) VALUES (?, ?)",
                         (
                             player_a["name"],
-                            unidecode.unidecode(player_a["name"].lower().replace(" ", "-"))
+                            urllib.parse.quote(player_a["name"])
                         )
                     )
 
@@ -75,7 +75,7 @@ def update_db_from_history():
                         "INSERT OR IGNORE INTO players (name, slug) VALUES (?, ?)",
                         (
                             player_b["name"],
-                            unidecode.unidecode(player_b["name"].lower().replace(" ", "-"))
+                            urllib.parse.quote(player_b["name"])
                         )
                     )
 
@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
     scheduler.api_enabled = True
     scheduler.init_app(app)
-    scheduler.add_job(id = 'background_update_db', func=background_update_db, trigger="interval", seconds=30, misfire_grace_time=900)
+    scheduler.add_job(id = 'background_update_db', func=background_update_db, trigger="interval", minutes=5, misfire_grace_time=900)
     scheduler.start()
 
     app.run()

@@ -1,14 +1,165 @@
-<p> Live @ {{api}} </p>
+{% extends 'index.html' %}
 
-<script type="text/javascript">
-       var ws = new WebSocket("{{api}}");
-       ws.onopen = function() {
-           console.log("socket open");
-       };
-       ws.onclose = function(evt) {
-           console.log("socket closed");
-       };
-       ws.onmessage = function(evt) {
-           console.log(evt.data);
-       };
-</script>
+{% block content %}
+
+    <div class="col-xs-6">
+        <h2 class="sub-header">Ongoing games</h2>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="col-md-4">id</th>
+                        <th class="col-md-4">Player 1</th>
+                        <th class="col-md-4">Player 2</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="0-b-id" class="col-md-4">Waiting...</td>
+                        <td id="0-b-p1" class="col-md-4">Waiting...</td>
+                        <td id="0-b-p2" class="col-md-4">Waiting...</td>
+                    </tr>
+                    <tr>
+                        <td id="1-b-id" class="col-md-4">Waiting...</td>
+                        <td id="1-b-p1" class="col-md-4">Waiting...</td>
+                        <td id="1-b-p2" class="col-md-4">Waiting...</td>
+                    </tr>
+                    <tr>
+                        <td id="2-b-id" class="col-md-4">Waiting...</td>
+                        <td id="2-b-p1" class="col-md-4">Waiting...</td>
+                        <td id="2-b-p2" class="col-md-4">Waiting...</td>
+                    </tr>
+                    <tr>
+                        <td id="3-b-id" class="col-md-4">Waiting...</td>
+                        <td id="3-b-p1" class="col-md-4">Waiting...</td>
+                        <td id="3-b-p2" class="col-md-4">Waiting...</td>
+                    </tr>
+                    <tr>
+                        <td id="4-b-id" class="col-md-4">Waiting...</td>
+                        <td id="4-b-p1" class="col-md-4">Waiting...</td>
+                        <td id="4-b-p2" class="col-md-4">Waiting...</td>
+                    </tr>
+                </tbody>
+            </table>
+         </div>
+    </div>
+    <div class="col-xs-6">
+        <h2 class="sub-header">Ended games</h2>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th class="col-md-2">id</th>
+                        <th class="col-md-2">Player 1</th>
+                        <th class="col-md-2">Played</th>
+                        <th class="col-md-2">Played</th>
+                        <th class="col-md-2">Player 2</th>
+                        <th class="col-md-2">Winner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="0-e-id" class="col-md-2">Waiting...</td>
+                        <td id="0-e-p1" class="col-md-2">Waiting...</td>
+                        <td id="0-e-h1" class="col-md-2">Waiting...</td>
+                        <td id="0-e-h2" class="col-md-2">Waiting...</td>
+                        <td id="0-e-p2" class="col-md-2">Waiting...</td>
+                        <td id="0-e-w" class="col-md-2">Waiting...</td>
+                    </tr>
+                    <tr>
+                        <td id="1-e-id" class="col-md-2">Waiting...</td>
+                        <td id="1-e-p1" class="col-md-2">Waiting...</td>
+                        <td id="1-e-h1" class="col-md-2">Waiting...</td>
+                        <td id="1-e-h2" class="col-md-2">Waiting...</td>
+                        <td id="1-e-p2" class="col-md-2">Waiting...</td>
+                        <td id="1-e-w" class="col-md-2">Waiting...</td>
+                    </tr>
+                    <tr>
+                        <td id="2-e-id" class="col-md-2">Waiting...</td>
+                        <td id="2-e-p1" class="col-md-2">Waiting...</td>
+                        <td id="2-e-h1" class="col-md-2">Waiting...</td>
+                        <td id="2-e-h2" class="col-md-2">Waiting...</td>
+                        <td id="2-e-p2" class="col-md-2">Waiting...</td>
+                        <td id="2-e-w" class="col-md-2">Waiting...</td>
+                    </tr>
+                    <tr>
+                        <td id="3-e-id" class="col-md-2">Waiting...</td>
+                        <td id="3-e-p1" class="col-md-2">Waiting...</td>
+                        <td id="3-e-h1" class="col-md-2">Waiting...</td>
+                        <td id="3-e-h2" class="col-md-2">Waiting...</td>
+                        <td id="3-e-p2" class="col-md-2">Waiting...</td>
+                        <td id="3-e-w" class="col-md-2">Waiting...</td>
+                    </tr>
+                    <tr>
+                        <td id="4-e-id" class="col-md-2">Waiting...</td>
+                        <td id="4-e-p1" class="col-md-2">Waiting...</td>
+                        <td id="4-e-h1" class="col-md-2">Waiting...</td>
+                        <td id="4-e-h2" class="col-md-2">Waiting...</td>
+                        <td id="4-e-p2" class="col-md-2">Waiting...</td>
+                        <td id="4-e-w" class="col-md-2">Waiting...</td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+        </div>
+
+    <script type="text/javascript">
+           var ws = new WebSocket("{{api}}");
+           let started = []
+           let ended = []
+           ws.onopen = function() {
+               console.log("socket open");
+           };
+           ws.onclose = function(evt) {
+               console.log("socket closed");
+           };
+           ws.onmessage = function(evt) {
+               function winner(p1, p2){
+                   let win = {
+                       "SCISSORS": "PAPER",
+                       "PAPER": "ROCK",
+                       "ROCK": "SCISSORS"
+                   };
+
+                   if (win[p1["played"]] == p2["played"]){
+                       return p1["name"];
+                   } else if (p1["played"] == p2["played"]) {
+                       return "Tie";
+                   }
+                   return p2["name"];
+               }
+               let obj = JSON.parse(evt.data);
+               obj = JSON.parse(obj);
+               console.log(obj);
+               if (obj["type"] == "GAME_BEGIN") {
+                   started.unshift(obj);
+                   if (started.length > 5){
+                       started.pop();
+                   }
+                   for (let i = 0; i < started.length; i++) {
+                       document.getElementById(i.toString() + "-b-id").innerHTML = started[i]["gameId"];
+                       document.getElementById(i.toString() + "-b-p1").innerHTML = started[i]["playerA"]["name"];
+                       document.getElementById(i.toString() + "-b-p2").innerHTML = started[i]["playerB"]["name"];
+                       // if (obj["t"]) {
+                       //     document.getElementById(i.toString() + "-b-t").innerHTML = Date(parseInt(started[i]["t"]) * 1000).toLocaleString();
+                       // }
+                   }
+               } else {
+                   ended.unshift(obj);
+                   if (ended.length > 5){
+                       ended.pop();
+                   }
+                   for (let i = 0; i < ended.length; i++) {
+                       document.getElementById(i.toString() + "-e-id").innerHTML = ended[i]["gameId"];
+                       document.getElementById(i.toString() + "-e-p1").innerHTML = ended[i]["playerA"]["name"];
+                       document.getElementById(i.toString() + "-e-h1").innerHTML = ended[i]["playerA"]["played"];
+                       document.getElementById(i.toString() + "-e-h2").innerHTML = ended[i]["playerB"]["played"];
+                       document.getElementById(i.toString() + "-e-p2").innerHTML = ended[i]["playerB"]["name"];
+                       document.getElementById(i.toString() + "-e-w").innerHTML = winner(ended[i]["playerA"], ended[i]["playerB"]);
+                   }
+               }
+           };
+    </script>
+
+
+{% endblock %}

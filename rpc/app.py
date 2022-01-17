@@ -2,11 +2,24 @@ import sqlite3
 import requests
 import json
 import unidecode
+import atexit
 from flask import Flask, render_template
+from flask_apscheduler import APScheduler
 
 app = Flask(__name__)
 
 API_BASE = "bad-api-assignment.reaktor.com"
+
+scheduler = APScheduler()
+scheduler.api_enabled = True
+scheduler.init_app(app)
+scheduler.start()
+
+@scheduler.task('interval', id='background_update_db', minutes=5, misfire_grace_time=900)
+def background_update_db():
+    print("background update...")
+    update_db_from_history()
+
 
 def get_winner(a, b):
     win = {
@@ -22,8 +35,8 @@ def get_winner(a, b):
 
 
 def get_db_connection():
-    conn = sqlite3.connect("rpc/database.db")
-    # conn.row_factory = sqlite3.Row
+    # Set time out to 20min -> clients must wait while database is updateing
+    conn = sqlite3.connect("rpc/database.db", timeout=1200)
     return conn
 
 def query_db(query, args = ()):
@@ -133,3 +146,8 @@ def player(name):
 @app.route("/live")
 def live():
     return render_template("live.html")
+
+if __name__ == "__main__":
+    # Database must be up to date before serving clients
+    update_db_from_history()
+    app.run()

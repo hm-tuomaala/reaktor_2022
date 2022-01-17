@@ -28,7 +28,7 @@ def get_winner(a, b):
 
 
 def get_db_connection():
-    # Set time out to 20min -> clients must wait while database is updateing
+    # Set time out to 20min -> clients must wait while database is updating
     conn = sqlite3.connect("rpc/database.db", timeout=1200)
     return conn
 
@@ -135,10 +135,9 @@ def player(name):
     player = query_db(
         """SELECT name
            FROM players
-           WHERE slug = ?""",
+           WHERE name = ?""",
            (name,)
     )
-    print(player)
     return player[0][0] if player else f"{name} not found"
 
 @app.route("/live")

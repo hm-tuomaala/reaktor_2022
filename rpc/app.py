@@ -184,7 +184,6 @@ def player(name):
         (name, name)
     )
 
-    print(games[0])
     try:
         data["games"] = games
         data["name"] = stats[0][0]

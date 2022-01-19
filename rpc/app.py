@@ -49,44 +49,31 @@ def update_db_from_history():
             d = requests.get(api + cursor).json()
             d["data"] = sorted(d["data"], key=lambda x: -x['t'])
             for game in d["data"]:
-                id = game["gameId"]
-                type = game["type"]
-                time = game["t"]
-                player_a = game["playerA"]
-                player_b = game["playerB"]
 
-                if player_a["name"] != player_b["name"]:
-                    winner = get_winner(player_a, player_b)
+                # Filter out games where person supposedly played themselves
+                if game["playerA"]["name"] != game["playerB"]["name"]:
+                    winner = get_winner(game["playerA"], game["playerB"])
 
                     conn.execute(
-                        "INSERT INTO games (id, time, winner) VALUES (?, ?, ?)",
-                        (id, time, winner)
-                    )
-
-                    conn.execute(
-                        "INSERT OR IGNORE INTO players (name, slug) VALUES (?, ?)",
+                        """ INSERT INTO games
+                            (
+                                id,
+                                time,
+                                player_a,
+                                player_b,
+                                a_hand,
+                                b_hand,
+                                winner
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?) """,
                         (
-                            player_a["name"],
-                            urllib.parse.quote(player_a["name"])
+                            game["gameId"],
+                            game["t"],
+                            game["playerA"]["name"],
+                            game["playerB"]["name"],
+                            game["playerA"]["played"],
+                            game["playerB"]["played"],
+                            winner
                         )
-                    )
-
-                    conn.execute(
-                        "INSERT OR IGNORE INTO players (name, slug) VALUES (?, ?)",
-                        (
-                            player_b["name"],
-                            urllib.parse.quote(player_b["name"])
-                        )
-                    )
-
-                    conn.execute(
-                        "INSERT INTO games_players (player_name, game_id) VALUES (?, ?)",
-                        (player_a["name"], id)
-                    )
-
-                    conn.execute(
-                        "INSERT INTO games_players (player_name, game_id) VALUES (?, ?)",
-                        (player_b["name"], id)
                     )
 
             cursor = d["cursor"]
@@ -97,6 +84,7 @@ def update_db_from_history():
         conn.close()
 
     except sqlite3.IntegrityError:
+        # Unique id error -> reached the newest game found in the database
         conn.commit()
         conn.close()
         print("Database is now up to date")
@@ -123,9 +111,11 @@ def update():
 @app.route("/players")
 def players():
     names = query_db(
-        """ SELECT name
-              FROM players
-             ORDER BY name ASC """
+        """ SELECT DISTINCT player_a AS name
+              FROM games
+             UNION
+            SELECT DISTINCT player_b AS name
+              FROM games """
     )
     names = ["%s" % x for x in names]
     return render_template("players.html", names = names)
@@ -133,35 +123,76 @@ def players():
 @app.route("/players/<name>")
 def player(name):
     data = {}
+    stats = query_db(
+        """ SELECT q1.name,
+                   q1.hand,
+                   q1.hand_count,
+                   q2.total AS total_games,
+                   q3.wins,
+                   printf('%.5f',(q3.wins * 1.0 / q2.total)) AS win_ratio
+              FROM (
+                   SELECT name,
+                          hand,
+                          COUNT(*) AS hand_count
+                     FROM (
+                          SELECT player_a AS name,
+                                 a_hand AS hand,
+                                 winner
+                            FROM games
+                           WHERE player_a = ?
+                           UNION ALL
+                          SELECT player_b AS name,
+                                 b_hand AS hand,
+                                 winner
+                            FROM games
+                           WHERE player_b = ?
+                          )
+                    GROUP BY name, hand
+                    ORDER BY COUNT(*) DESC
+                    LIMIT 1
+                    ) q1
+               JOIN (
+                    SELECT ? AS name,
+                           COUNT(*) AS total
+                      FROM games
+                     WHERE player_a = ?
+                        OR player_b = ?
+                    ) q2
+                 ON q1.name = q2.name
+               JOIN (
+                    SELECT winner AS name,
+                           COUNT(*) AS wins
+                      FROM games
+                     WHERE (player_a = ? AND winner = ?)
+                        OR (player_b = ? AND winner = ?)
+                    ) q3
+                 ON q1.name = q3.name """,
+        (name, name, name, name, name, name, name, name, name)
+    )
+
     games = query_db(
-        """ SELECT p1.game_id AS id,
-                   p1.player_name AS player1,
-                   p2.player_name AS player2,
-                   g.winner,
-                   g.time
-              FROM games_players p1
-              JOIN games_players p2
-                ON p1.game_id = p2.game_id
-              JOIN games g
-                ON p1.game_id = g.id
-             WHERE p1.player_name <> p2.player_name
-               AND p1.player_name = ?
-             ORDER BY g.time DESC """,
-        (name,)
-    )
-
-    wins = query_db(
-        """ SELECT COUNT(*) AS wins
+        """ SELECT id,
+                   time,
+                   player_a,
+                   player_b,
+                   a_hand,
+                   b_hand,
+                   winner
               FROM games
-             WHERE winner = ? """,
-        (name,)
+             WHERE player_a = ?
+                OR player_b = ? """,
+        (name, name)
     )
 
+    print(games[0])
     try:
         data["games"] = games
-        data["name"] = games[0][1]
-        data["total"] = wins[0][0]
-        data["ratio"] = "%.4f" % (data["total"] / len(data["games"]))
+        data["name"] = stats[0][0]
+        data["hand"] = stats[0][1]
+        data["hand_count"] = stats[0][2]
+        data["total"] = stats[0][3]
+        data["wins"] = stats[0][4]
+        data["ratio"] = stats[0][5]
     except IndexError:
         # Searched person was not found in the database
         return f"{name} was not found in the database"

@@ -44,8 +44,7 @@
             </li>
             </ul>
         </div>
-        <div id="online">
-            ----- Live games here -----
+        <div id="online" style="color:#cccccc;">
         </div>
     </nav>
 
@@ -53,6 +52,44 @@
         {% block content %}
         {% endblock %}
     </div>
+
+    <script type="text/javascript">
+           var ws = new WebSocket("ws://bad-api-assignment.reaktor.com/rps/live");
+
+           ws.onopen = function() {
+               // console.log("socket open");
+           };
+           ws.onclose = function(evt) {
+               // console.log("socket closed");
+           };
+           ws.onmessage = function(evt) {
+               function winner(p1, p2){
+                   let win = {
+                       "SCISSORS": "PAPER",
+                       "PAPER": "ROCK",
+                       "ROCK": "SCISSORS"
+                   };
+
+                   if (win[p1["played"]] == p2["played"]){
+                       return p1["name"];
+                   } else if (p1["played"] == p2["played"]) {
+                       return "Tie";
+                   }
+                   return p2["name"];
+               }
+               let obj = JSON.parse(evt.data);
+               obj = JSON.parse(obj);
+               // console.log(obj);
+               if (obj["type"] == "GAME_RESULT") {
+                   let w = winner(obj["playerA"], obj["playerB"]);
+                   if (w != "Tie") {
+                       document.getElementById("online").innerHTML = obj["playerA"]["name"] + "(" + obj["playerA"]["played"] + ") vs. " + obj["playerB"]["name"] + " | Winner: " + w;
+                   } else {
+                       document.getElementById("online").innerHTML = obj["playerA"]["name"] + " vs. " + obj["playerB"]["name"] + " | Ended in a tie";
+                   }
+               }
+           };
+    </script>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->

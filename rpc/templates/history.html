@@ -39,11 +39,11 @@
         <div class="row justify-content-center">
         {% for game in data.games %}
             {% if game.6 == data.name %}
-              <p>WIN! {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
+              <p><strong style="color: green;">WIN!</strong> {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
             {% elif game.6 == 'Tie' %}
-              <p>TIE! {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
+              <p><strong style="color: yellow;">TIE!</strong> {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
             {% else %}
-              <p>LOST! {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
+              <p><strong style="color: red">LOST!</strong> {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
             {% endif %}
         {% endfor %}
         </div>

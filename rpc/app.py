@@ -1,14 +1,14 @@
 import sqlite3
 import requests
 import json
-import urllib.parse
-import atexit
-from flask import Flask, render_template, request
+import os
+from flask import Flask, render_template
 from flask_apscheduler import APScheduler
 
 app = Flask(__name__)
 
 API_BASE = "bad-api-assignment.reaktor.com"
+DATABASE = os.path.join(os.path.dirname(__file__), 'database.db')
 
 scheduler = APScheduler()
 
@@ -29,7 +29,7 @@ def get_winner(a, b):
 
 def get_db_connection():
     # Set time out to 20min -> clients must wait while database is updating
-    conn = sqlite3.connect("rpc/database.db", timeout=1200)
+    conn = sqlite3.connect(DATABASE, timeout=1200)
     return conn
 
 def query_db(query, args = ()):

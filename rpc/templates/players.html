@@ -1,11 +1,11 @@
 {% extends 'index.html' %}
 
 {% block content %}
+    <div class="container justify-content-center">
+        <h1 class="overflow-auto pt-3 pb-4"><strong> Players </strong></h1>
 
-    <h1 class="overflow-auto pt-3 pb-4"><strong> Players </strong></h1>
-
-    {% for name in names %}
-      <a a class="nav-link" href="{{ url_for('player', name=name ) }}">{{ name }}</a>
-    {% endfor %}
-
+        {% for name in names %}
+          <a a class="nav-link" href="{{ url_for('player', name=name ) }}">{{ name }}</a>
+        {% endfor %}
+    </div>
 {% endblock %}

@@ -34,14 +34,15 @@
         </div>
     </div>
     <div class="container justify-content-center">
-        <div class="row">
+        <div>
         {% for game in data.games %}
+            <hr>
             {% if game.6 == data.name %}
-              <p><strong style="color: green;">WIN!</strong> {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
+              <p><span class="badge badge-success">WIN</span> {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
             {% elif game.6 == 'Tie' %}
-              <p><strong style="color: yellow;">TIE!</strong> {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
+              <p><span class="badge badge-secondary">TIE</span> {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
             {% else %}
-              <p><strong style="color: red">LOST!</strong> {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
+              <p><span class="badge badge-danger">LOST</span> {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
             {% endif %}
         {% endfor %}
         </div>

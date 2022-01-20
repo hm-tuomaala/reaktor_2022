@@ -186,7 +186,7 @@ def player(name):
 
     temp = [(f"{x[0]}", f"{x[1]}", f"{x[2]} ({x[3]}) vs. ({x[4]}) {x[5]}", x[6]) for x in games]
 
-    games = [('{0:<26} {1:<25} {2:>}'.format(x[0], x[1], x[2]).replace(" ", "&nbsp;"), x[3]) for x in temp]
+    games = [('{0:<26} {1:<25} {2:>}'.format(x[0], x[1], x[2]), x[3]) for x in temp]
 
     try:
         data["games"] = games

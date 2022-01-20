@@ -35,27 +35,28 @@
     </div>
     <div class="container">
         {% for game in data.games %}
-            <div class="row justify-content-left">
+            <hr>
+            <div class="row justify-content-center">
             {% if game.1 == data.name %}
-                <div class = "col-2">
+                <div class = "col-1">
                     <span class="badge badge-success">WIN</span>
                 </div>
-                <div class = "col-10">
-                    <span> {{ game.0|safe }} </span>
+                <div class = "col-11">
+                    <pre> {{ game.0|safe }} </pre>
                 </div>
             {% elif game.1 == 'Tie' %}
-                <div class = "col-2">
+                <div class = "col-1">
                     <span class="badge badge-secondary">TIE</span>
                 </div>
-                <div class = "col-10">
-                    <span> {{ game.0|safe }} </span>
+                <div class = "col-11">
+                    <pre> {{ game.0|safe }} </pre>
                 </div>
             {% else %}
-                <div class = "col-2">
+                <div class = "col-1">
                     <span class="badge badge-danger">LOST</span>
                 </div>
-                <div class = "col-10">
-                    <span> {{ game.0|safe }} </span>
+                <div class = "col-11">
+                    <pre> {{ game.0|safe }} </pre>
                 </div>
             {% endif %}
             </div>

@@ -4,7 +4,7 @@
     <div class="container justify-content-center">
         <div class="row">
             <div class="col">
-                <h1 class="overflow-auto pt-4 pb-4"><strong> {{ data.name }} </strong></h1>
+                <h1 class="overflow-10 pt-4 pb-4"><strong> {{ data.name }} </strong></h1>
             </div>
             <div class="col pt-4 pb-4 justify-content-center">
 
@@ -33,18 +33,32 @@
             </div>
         </div>
     </div>
-    <div class="container justify-content-center">
-        <div>
+    <div class="container">
         {% for game in data.games %}
-            <hr>
-            {% if game.6 == data.name %}
-              <p><span class="badge badge-success">WIN</span> {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
-            {% elif game.6 == 'Tie' %}
-              <p><span class="badge badge-secondary">TIE</span> {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
+            <div class="row justify-content-left">
+            {% if game.1 == data.name %}
+                <div class = "col-2">
+                    <span class="badge badge-success">WIN</span>
+                </div>
+                <div class = "col-10">
+                    <span> {{ game.0|safe }} </span>
+                </div>
+            {% elif game.1 == 'Tie' %}
+                <div class = "col-2">
+                    <span class="badge badge-secondary">TIE</span>
+                </div>
+                <div class = "col-10">
+                    <span> {{ game.0|safe }} </span>
+                </div>
             {% else %}
-              <p><span class="badge badge-danger">LOST</span> {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>
+                <div class = "col-2">
+                    <span class="badge badge-danger">LOST</span>
+                </div>
+                <div class = "col-10">
+                    <span> {{ game.0|safe }} </span>
+                </div>
             {% endif %}
+            </div>
         {% endfor %}
-        </div>
     </div>
 {% endblock %}

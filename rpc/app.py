@@ -174,15 +174,19 @@ def player(name):
         """ SELECT id,
                    DATETIME(ROUND(time / 1000), 'unixepoch', 'localtime') AS time,
                    player_a,
-                   player_b,
                    a_hand,
                    b_hand,
+                   player_b,
                    winner
               FROM games
              WHERE player_a = ?
                 OR player_b = ? """,
         (name, name)
     )
+
+    temp = [(f"{x[0]}", f"{x[1]}", f"{x[2]} ({x[3]}) vs. ({x[4]}) {x[5]}", x[6]) for x in games]
+
+    games = [('{0:<26} {1:<25} {2:>}'.format(x[0], x[1], x[2]).replace(" ", "&nbsp;"), x[3]) for x in temp]
 
     try:
         data["games"] = games

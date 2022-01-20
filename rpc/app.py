@@ -3,7 +3,7 @@ import requests
 import json
 import urllib.parse
 import atexit
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_apscheduler import APScheduler
 
 app = Flask(__name__)
@@ -108,7 +108,7 @@ def update():
     return "DATABASE UPDATED"
 
 
-@app.route("/players")
+@app.route("/players", methods=["GET"])
 def players():
     names = query_db(
         """ SELECT DISTINCT player_a AS name
@@ -172,7 +172,7 @@ def player(name):
 
     games = query_db(
         """ SELECT id,
-                   time,
+                   DATETIME(ROUND(time / 1000), 'unixepoch', 'localtime') AS time,
                    player_a,
                    player_b,
                    a_hand,

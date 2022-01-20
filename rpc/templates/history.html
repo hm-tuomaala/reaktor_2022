@@ -2,8 +2,8 @@
 
 {% block content %}
     <div class="container justify-content-center">
-        <div class="row justify-content-center align-items-center">
-            <div class="col justify-content-center align-items-center">
+        <div class="row">
+            <div class="col">
                 <h1 class="overflow-auto pt-4 pb-4"><strong> {{ data.name }} </strong></h1>
             </div>
             <div class="col pt-4 pb-4 justify-content-center">
@@ -13,30 +13,28 @@
                     <table class="table">
                         <thead>
                             <tr>
-                                <th class="col-md-3">Games</th>
-                                <th class="col-md-3">Wins</th>
-                                <th class="col-md-3">Win Ratio</th>
-                                <th class="col-md-3">Most Played Hand</th>
+                                <th class="col-3">Games</th>
+                                <th class="col-3">Wins</th>
+                                <th class="col-3">Win Ratio</th>
+                                <th class="col-3">Most Played Hand</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td class="col-md-3">{{data.total}}</td>
-                                <td class="col-md-3">{{data.wins}}</td>
-                                <td class="col-md-3">{{data.ratio}}</td>
-                                <td class="col-md-3">{{data.hand}} ({{ data.hand_count }})</td>
+                                <td class="col-3">{{data.total}}</td>
+                                <td class="col-3">{{data.wins}}</td>
+                                <td class="col-3">{{data.ratio}}</td>
+                                <td class="col-3">{{data.hand}} ({{ data.hand_count }})</td>
                             </tr>
                         </tbody>
                     </table>
                  </div>
 
-                <!-- <p><strong>Win ratio: {{ data.ratio }}</strong></p>
-                <p><strong>Total wins: {{ data.total }}</strong></p> -->
             </div>
         </div>
     </div>
-    <div class="container">
-        <div class="row justify-content-center">
+    <div class="container justify-content-center">
+        <div class="row">
         {% for game in data.games %}
             {% if game.6 == data.name %}
               <p><strong style="color: green;">WIN!</strong> {{ game.0 }} {{ game.1 }} {{ game.2 }} ({{ game.4}}) vs. ({{ game.5 }}) {{ game.3 }}</p>

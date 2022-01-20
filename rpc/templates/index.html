@@ -60,7 +60,7 @@
                // console.log("socket open");
            };
            ws.onclose = function(evt) {
-               // console.log("socket closed");
+               document.getElementById("online").innerHTML = "Streaming ended";
            };
            ws.onmessage = function(evt) {
                function winner(p1, p2){
@@ -83,9 +83,17 @@
                if (obj["type"] == "GAME_RESULT") {
                    let w = winner(obj["playerA"], obj["playerB"]);
                    if (w != "Tie") {
-                       document.getElementById("online").innerHTML = obj["playerA"]["name"] + "(" + obj["playerA"]["played"] + ") vs. " + obj["playerB"]["name"] + " | Winner: " + w;
+                       document.getElementById("online").innerHTML =
+                           obj["playerA"]["name"] + " (" +
+                           obj["playerA"]["played"] + ") vs. (" +
+                           obj["playerB"]["played"] + ") " +
+                           obj["playerB"]["name"];
                    } else {
-                       document.getElementById("online").innerHTML = obj["playerA"]["name"] + " vs. " + obj["playerB"]["name"] + " | Ended in a tie";
+                       document.getElementById("online").innerHTML =
+                           obj["playerA"]["name"] + " (" +
+                           obj["playerA"]["played"] + ") vs. (" +
+                           obj["playerB"]["played"] + ") " +
+                           obj["playerB"]["name"];
                    }
                }
            };

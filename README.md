@@ -35,3 +35,4 @@ cd rps && python3 db.py
   * Optimize for mobile
   * Add png to represent played hands
 * Make database updating non-blocking
+* Add tests

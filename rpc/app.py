@@ -270,65 +270,91 @@ def games():
         return render_template('games.html', data=data, games=ret_items)
 
     stats = query_db(
-        """ select q1.player || ' (' || q1.games || ')' as most_games,
-            q2.player || ' (' || q2.wins || ')' as most_wins,
-            q3.player || ' (' || printf('%.5f',q3.ratio) || ')' as best_ratio,
-            q4.hand || ' (' || q4.total || ')' as mph,
-            q5.hand || ' (' || q5.total || ')' as mvh
-            from (
-            select player, count(*) as games, 1 as j from (
-            select player_a as player from games
-            union all
-            select player_b as player from games)
-            group by player
-            order by count(*) desc
-            limit 1) q1
-            join (
-            select player, count(*) as wins, 1 as j from (
-            select player_a as player from games
-            where winner = player_a
-            union all
-            select player_b as player from games
-            where winner = player_b)
-            group by player
-            order by count(*) desc
-            limit 1) q2 on q1.j = q2.j
-            join (
-            select w.player, wins, games, (wins * 1.0 / games) as ratio, 1 as j from (
-            select player, count(*) as wins from (
-            select player_a as player from games
-            where winner = player_a
-            union all
-            select player_b as player from games
-            where winner = player_b)
-            group by player
-            order by count(*) desc) w join (
-            select player, count(*) as games from (
-            select player_a as player from games
-            union all
-            select player_b as player from games)
-            group by player
-            order by count(*) desc) g on w.player = g.player
-            order by 4 desc
-            limit 1) q3 on q1.j = q3.j
-            join (
-            select hand, count(*) as total, 1 as j from (
-            select a_hand as hand from games
-            union all
-            select b_hand as hand from games)
-            group by hand
-            order by 2 desc
-            limit 1) q4 on q1.j = q4.j
-            join (
-            select hand, count(*) as total, 1 as j from (
-            select a_hand as hand from games
-            where winner = player_a
-            union all
-            select b_hand as hand from games
-            where winner = player_b)
-            group by hand
-            order by count(*) desc
-            limit 1) q5 on q1.j = q5.j """
+        """ SELECT q1.player || ' (' || q1.games || ')' AS most_games,
+                   q2.player || ' (' || q2.wins || ')' AS most_wins,
+                   q3.player || ' (' || printf('%.5f',q3.ratio) || ')' AS best_ratio,
+                   q4.hand || ' (' || q4.total || ')' AS mph,
+                   q5.hand || ' (' || q5.total || ')' AS mvh
+              FROM (
+                   SELECT player, COUNT(*) AS games, 1 AS j
+                     FROM (
+                          SELECT player_a AS player FROM games
+                           UNION ALL
+                          SELECT player_b AS player FROM games
+                          )
+                    GROUP BY player
+                    ORDER BY COUNT(*) DESC
+                    LIMIT 1
+                 ) q1
+            JOIN (
+                 SELECT player, COUNT(*) AS wins, 1 AS j
+                   FROM (
+                        SELECT player_a AS player FROM games
+                         WHERE winner = player_a
+                         UNION ALL
+                        SELECT player_b AS player FROM games
+                         WHERE winner = player_b
+                         )
+                   GROUP BY player
+                   ORDER BY COUNT(*) DESC
+                   LIMIT 1
+                 ) q2
+              ON q1.j = q2.j
+            JOIN (
+                 SELECT w.player, wins, games, (wins * 1.0 / games) AS ratio, 1 AS j
+                   FROM (
+                        SELECT player, COUNT(*) AS wins
+                          FROM (
+                               SELECT player_a AS player FROM games
+                                WHERE winner = player_a
+                                UNION ALL
+                               SELECT player_b AS player FROM games
+                                WHERE winner = player_b
+                               )
+                         GROUP BY player
+                         ORDER BY COUNT(*) DESC
+                         ) w
+                    JOIN (
+                         SELECT player, COUNT(*) AS games
+                           FROM (
+                                SELECT player_a AS player FROM games
+                                 UNION ALL
+                                SELECT player_b AS player FROM games
+                                )
+                          GROUP BY player
+                          ORDER BY COUNT(*) DESC
+                          ) g
+                      ON w.player = g.player
+                   ORDER BY 4 DESC
+                   LIMIT 1
+                 ) q3
+              ON q1.j = q3.j
+            JOIN (
+                 SELECT hand, COUNT(*) AS total, 1 AS j
+                   FROM (
+                        SELECT a_hand AS hand FROM games
+                         UNION ALL
+                        SELECT b_hand AS hand FROM games
+                        )
+                  GROUP BY hand
+                  ORDER BY COUNT(*) DESC
+                  LIMIT 1
+                  ) q4
+               ON q1.j = q4.j
+             JOIN (
+                  SELECT hand, COUNT(*) AS total, 1 AS j
+                    FROM (
+                         SELECT a_hand AS hand FROM games
+                          WHERE winner = player_a
+                          UNION ALL
+                         SELECT b_hand AS hand FROM games
+                          WHERE winner = player_b
+                         )
+                   GROUP BY hand
+                   ORDER BY COUNT(*) DESC
+                   LIMIT 1
+                  ) q5
+               ON q1.j = q5.j """
     )
 
     print("DATA FROM THE QUERY")

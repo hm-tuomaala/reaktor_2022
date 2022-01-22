@@ -31,7 +31,8 @@ cd rps && python3 db.py
 ```
 
 ### Known Issues and Development Ideas
-* Games page loading time needs to be improved -> stats query takes too long
+* Curent database schema is poor and should be changed to a more robust relational structure
+* Games page loading time needs to be improved -> stats-query takes too long
 * Enhance the UI
   * Optimize for mobile
   * Add png to represent played hands

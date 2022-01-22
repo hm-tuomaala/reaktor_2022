@@ -28,6 +28,22 @@ def get_winner(a, b):
     else:
         return a["name"] if win[a["played"]] == b["played"] else b["name"]
 
+def paginate(items_list, items_per_page, page):
+    ret_items = {}
+    pages = {}
+    items_per_page = 100
+
+    for i in range(math.ceil(len(items_list) / items_per_page)):
+        pages[i + 1] = items_list[i * items_per_page : (i + 1) * items_per_page]
+
+    ret_items["pages"] = len(pages.keys())
+    ret_items["list"] = pages[page]
+    ret_items["next"] = None if page == ret_items["pages"] else page + 1
+    ret_items["prev"] = None if page == 1 else page - 1
+    ret_items["current"] = page
+
+    return ret_items
+
 
 def get_db_connection():
     # Set time out to 20min -> clients must wait while database is updating
@@ -192,24 +208,10 @@ def player(name):
 
     g = [('{0:<25} {1:<25} {2:<18} {3:>10} vs. {4:<11} {5:<}'.format(x[0], x[1], x[2], x[3], x[4], x[5]), x[6]) for x in games]
 
-    ret_items = {}
-    game_pages = {}
     items_per_page = 100
-
-    for i in range(math.ceil(len(g) / items_per_page)):
-        game_pages[i + 1] = g[i * items_per_page : (i + 1) * items_per_page]
-
-    ret_items["pages"] = len(game_pages.keys())
-    ret_items["games"] = list(game_pages[page])
-    ret_items["next"] = None if page == ret_items["pages"] else page + 1
-    ret_items["prev"] = None if page == 1 else page - 1
-    ret_items["current"] = page
-
-    print(ret_items["games"])
-
+    ret_items = paginate(g, items_per_page, page)
 
     try:
-        # data["games"] = ret_items
         data["name"] = stats[0][0]
         data["hand"] = stats[0][1]
         data["hand_count"] = stats[0][2]

@@ -29,60 +29,45 @@
                  </div>
             </div>
         </div>
-        <dic class="row">
-            <div class="col pt-4 pb-4 justify-content-center">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th scope="col">Least Games</th>
-                                <th scope="col">Most Losses</th>
-                                <th scope="col">Worst Win Ratio</th>
-                                <th scope="col">Least Played Hand</th>
-                                <th scope="col">Most Defeted Hand</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>{{data.least_games}}</td>
-                                <td>{{data.most_losses}}</td>
-                                <td>{{data.worst_ratio}}</td>
-                                <td>{{data.lph}}</td>
-                                <td>{{data.mdh}}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                 </div>
-            </div>
-        </div>
     </div>
-    <!-- <div class="container">
-        {% for game in data.games %}
+    <div class="container">
+        <h1 class="overflow-10 pt-4 pb-4"><strong> RPS Tournament Games </strong></h1>
+        {% for game in games.list %}
             <hr>
             <div class="row justify-content-center">
-            {% if game.1 == data.name %}
-                <div class = "col-1">
-                    <span class="badge badge-success">WIN</span>
-                </div>
                 <div class = "col-11">
                     <pre> {{ game.0|safe }} </pre>
                 </div>
-            {% elif game.1 == 'Tie' %}
-                <div class = "col-1">
-                    <span class="badge badge-secondary">TIE</span>
-                </div>
-                <div class = "col-11">
-                    <pre> {{ game.0|safe }} </pre>
-                </div>
-            {% else %}
-                <div class = "col-1">
-                    <span class="badge badge-danger">LOST</span>
-                </div>
-                <div class = "col-11">
-                    <pre> {{ game.0|safe }} </pre>
-                </div>
-            {% endif %}
             </div>
         {% endfor %}
-    </div> -->
+    </div>
+
+    <div class="text-right">
+        <a href="{{ url_for(request.endpoint, name=data.name , page=games.prev) }}" class="btn btn-outline-dark {% if not games.prev %}disabled{% endif %}">
+        &laquo;
+        </a>
+        {% if games.prev %}
+        <a href="{{ url_for(request.endpoint, name=data.name ,page=games.prev) }}"
+           class="btn btn-outline-dark">
+            {{ games.prev }}
+        </a>
+        {% endif %}
+        <a href="{{ url_for(request.endpoint, name=data.name ,page=games.current) }}"
+           class="btn btn-dark disabled">
+            {{ games.current }}
+        </a>
+        {% if games.next %}
+        <a href="{{ url_for(request.endpoint, name=data.name , page=games.next) }}"
+           class="btn btn-outline-dark">
+            {{ games.next }}
+        </a>
+        {% endif %}
+        <a href="{{ url_for(request.endpoint, name=data.name, page=games.next) }}" class="btn btn-outline-dark {% if not games.next %}disabled{% endif %}">
+        &raquo;
+        </a>
+    </div>
+    <p class="text-right mt-3">
+        Showing page {{ games.current }} of {{ games.pages }}
+    </p>
+
 {% endblock %}

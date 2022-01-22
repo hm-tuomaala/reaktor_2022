@@ -12,11 +12,11 @@ pip3 install -r requirements.txt
 ```
 * Initialize the database that holds the games (**Do this only on the first run**)
 ```bash
-cd rps && python3 db.py && cd ..
+cd rpc && python3 db.py && cd ..
 ```
 * Launch the server (Takes ~15 mins if the database hasn't been initialized previously)
 ```bash
-python3 rps/app.py
+python3 rpc/app.py
 ```
 
 The app can now be accessed in the [http://localhost:5000/](http://localhost:5000/)

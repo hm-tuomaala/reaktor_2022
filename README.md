@@ -1,6 +1,7 @@
 # RPS Reaktor Assignment 2022
 
-This is my implementation of the Reaktor 2022 pre-assignment for the Summer Developer position
+This is my implementation of the Reaktor 2022 pre-assignment for the Summer Developer position  
+The application is developed with Flask framework
 
 ## How to Run
 

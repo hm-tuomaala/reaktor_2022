@@ -174,22 +174,25 @@ def player(name):
         """ SELECT id,
                    DATETIME(ROUND(time / 1000), 'unixepoch', 'localtime') AS time,
                    player_a,
-                   a_hand,
-                   b_hand,
+                   '(' || a_hand || ')',
+                   '(' || b_hand || ')',
                    player_b,
                    winner
               FROM games
              WHERE player_a = ?
-                OR player_b = ? """,
+                OR player_b = ?
+             ORDER BY 2 DESC """,
         (name, name)
     )
 
-    temp = [(f"{x[0]}", f"{x[1]}", f"{x[2]} ({x[3]}) vs. ({x[4]}) {x[5]}", x[6]) for x in games]
+    # temp = [(f"{x[0]}", f"{x[1]}", f"{x[2]} ({x[3]}) vs. ({x[4]}) {x[5]}", x[6]) for x in games]
+    #
+    # games = [('{0:<26} {1:<25} {2:>}'.format(x[0], x[1], x[2]), x[3]) for x in temp]
 
-    games = [('{0:<26} {1:<25} {2:>}'.format(x[0], x[1], x[2]), x[3]) for x in temp]
+    g = [('{0:<25} {1:<25} {2:<18} {3:>10} vs. {4:<11} {5:<}'.format(x[0], x[1], x[2], x[3], x[4], x[5]), x[6]) for x in games]
 
     try:
-        data["games"] = games
+        data["games"] = g
         data["name"] = stats[0][0]
         data["hand"] = stats[0][1]
         data["hand_count"] = stats[0][2]
@@ -204,6 +207,152 @@ def player(name):
 @app.route("/live")
 def live():
     return render_template("live.html", api = "ws://" + API_BASE + "/rps/live")
+
+
+@app.route("/games")
+def games():
+    data = {}
+    data1 = query_db(
+        """ select q1.player || ' (' || q1.games || ')' as most_games,
+            q2.player || ' (' || q2.wins || ')' as most_wins,
+            q3.player || ' (' || printf('%.5f',q3.ratio) || ')' as best_ratio,
+            q4.hand || ' (' || q4.total || ')' as mph,
+            q5.hand || ' (' || q5.total || ')' as mvh
+            from (
+            select player, count(*) as games, 1 as j from (
+            select player_a as player from games
+            union all
+            select player_b as player from games)
+            group by player
+            order by count(*) desc
+            limit 1) q1
+            join (
+            select player, count(*) as wins, 1 as j from (
+            select player_a as player from games
+            where winner = player_a
+            union all
+            select player_b as player from games
+            where winner = player_b)
+            group by player
+            order by count(*) desc
+            limit 1) q2 on q1.j = q2.j
+            join (
+            select w.player, wins, games, (wins * 1.0 / games) as ratio, 1 as j from (
+            select player, count(*) as wins from (
+            select player_a as player from games
+            where winner = player_a
+            union all
+            select player_b as player from games
+            where winner = player_b)
+            group by player
+            order by count(*) desc) w join (
+            select player, count(*) as games from (
+            select player_a as player from games
+            union all
+            select player_b as player from games)
+            group by player
+            order by count(*) desc) g on w.player = g.player
+            order by 4 desc
+            limit 1) q3 on q1.j = q3.j
+            join (
+            select hand, count(*) as total, 1 as j from (
+            select a_hand as hand from games
+            union all
+            select b_hand as hand from games)
+            group by hand
+            order by 2 desc
+            limit 1) q4 on q1.j = q4.j
+            join (
+            select hand, count(*) as total, 1 as j from (
+            select a_hand as hand from games
+            where winner = player_a
+            union all
+            select b_hand as hand from games
+            where winner = player_b)
+            group by hand
+            order by count(*) desc
+            limit 1) q5 on q1.j = q5.j """
+    )
+
+    data2 = query_db(
+        """ select q1.player || ' (' || q1.games || ')' as least_games,
+            q2.player || ' (' || q2.lost || ')' as most_lost,
+            q3.player || ' (' || printf('%.5f',q3.ratio) || ')' as worst_ratio,
+            q4.hand || ' (' || q4.total || ')' as lph,
+            q5.hand || ' (' || q5.total || ')' as mdh
+            from (
+            select player, count(*) as games, 1 as j from (
+            select player_a as player from games
+            union all
+            select player_b as player from games)
+            group by player
+            order by count(*) asc
+            limit 1) q1
+            join (
+            select player, count(*) as lost, 1 as j from (
+            select player_a as player from games
+            where winner = player_b
+            union all
+            select player_b as player from games
+            where winner = player_a)
+            group by player
+            order by count(*) desc
+            limit 1) q2 on q1.j = q2.j
+            join (
+            select w.player, wins, games, (wins * 1.0 / games) as ratio, 1 as j from (
+            select player, count(*) as wins from (
+            select player_a as player from games
+            where winner = player_a
+            union all
+            select player_b as player from games
+            where winner = player_b)
+            group by player
+            order by count(*) desc) w join (
+            select player, count(*) as games from (
+            select player_a as player from games
+            union all
+            select player_b as player from games)
+            group by player
+            order by count(*) desc) g on w.player = g.player
+            order by 4 asc
+            limit 1) q3 on q1.j = q3.j
+            join (
+            select hand, count(*) as total, 1 as j from (
+            select a_hand as hand from games
+            union all
+            select b_hand as hand from games)
+            group by hand
+            order by 2 asc
+            limit 1) q4 on q1.j = q4.j
+            join (
+            select hand, count(*) as total, 1 as j from (
+            select a_hand as hand from games
+            where winner = player_b
+            union all
+            select b_hand as hand from games
+            where winner = player_a)
+            group by hand
+            order by count(*) desc
+            limit 1) q5 on q1.j = q5.j """
+    )
+
+    print(data1)
+    print(data2)
+
+    data["most_games"] = data1[0][0]
+    data["most_wins"] = data1[0][1]
+    data["best_ratio"] = data1[0][2]
+    data["mph"] = data1[0][3]
+    data["mvh"] =  data1[0][4]
+    data["least_games"] = data2[0][0]
+    data["most_losses"] = data2[0][1]
+    data["worst_ratio"] = data2[0][2]
+    data["lph"] = data2[0][3]
+    data["mdh"] =  data2[0][4]
+
+    return render_template('games.html', data=data)
+
+
 
 if __name__ == "__main__":
     # Database must be up to date before serving clients

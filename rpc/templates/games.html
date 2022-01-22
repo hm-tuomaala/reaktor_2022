@@ -1,0 +1,88 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <div class="container justify-content-center">
+        <h1 class="overflow-10 pt-4 pb-4"><strong> RPS Tournament Stats </strong></h1>
+        <div class="row">
+            <div class="col pt-4 pb-4 justify-content-center">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Most Games</th>
+                                <th scope="col">Most Wins</th>
+                                <th scope="col">Best Win Ratio</th>
+                                <th scope="col">Most Played Hand</th>
+                                <th scope="col">Most Victorous Hand</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{data.most_games}}</td>
+                                <td>{{data.most_wins}}</td>
+                                <td>{{data.best_ratio}}</td>
+                                <td>{{data.mph}}</td>
+                                <td>{{data.mvh}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                 </div>
+            </div>
+        </div>
+        <dic class="row">
+            <div class="col pt-4 pb-4 justify-content-center">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Least Games</th>
+                                <th scope="col">Most Losses</th>
+                                <th scope="col">Worst Win Ratio</th>
+                                <th scope="col">Least Played Hand</th>
+                                <th scope="col">Most Defeted Hand</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{data.least_games}}</td>
+                                <td>{{data.most_losses}}</td>
+                                <td>{{data.worst_ratio}}</td>
+                                <td>{{data.lph}}</td>
+                                <td>{{data.mdh}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                 </div>
+            </div>
+        </div>
+    </div>
+    <!-- <div class="container">
+        {% for game in data.games %}
+            <hr>
+            <div class="row justify-content-center">
+            {% if game.1 == data.name %}
+                <div class = "col-1">
+                    <span class="badge badge-success">WIN</span>
+                </div>
+                <div class = "col-11">
+                    <pre> {{ game.0|safe }} </pre>
+                </div>
+            {% elif game.1 == 'Tie' %}
+                <div class = "col-1">
+                    <span class="badge badge-secondary">TIE</span>
+                </div>
+                <div class = "col-11">
+                    <pre> {{ game.0|safe }} </pre>
+                </div>
+            {% else %}
+                <div class = "col-1">
+                    <span class="badge badge-danger">LOST</span>
+                </div>
+                <div class = "col-11">
+                    <pre> {{ game.0|safe }} </pre>
+                </div>
+            {% endif %}
+            </div>
+        {% endfor %}
+    </div> -->
+{% endblock %}

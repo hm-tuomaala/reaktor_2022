@@ -43,26 +43,26 @@
     </div>
 
     <div class="text-right">
-        <a href="{{ url_for(request.endpoint, name=data.name , page=games.prev) }}" class="btn btn-outline-dark {% if not games.prev %}disabled{% endif %}">
+        <a href="{{ url_for(request.endpoint, page=games.prev) }}" class="btn btn-outline-dark {% if not games.prev %}disabled{% endif %}">
         &laquo;
         </a>
         {% if games.prev %}
-        <a href="{{ url_for(request.endpoint, name=data.name ,page=games.prev) }}"
+        <a href="{{ url_for(request.endpoint, page=games.prev) }}"
            class="btn btn-outline-dark">
             {{ games.prev }}
         </a>
         {% endif %}
-        <a href="{{ url_for(request.endpoint, name=data.name ,page=games.current) }}"
+        <a href="{{ url_for(request.endpoint, page=games.current) }}"
            class="btn btn-dark disabled">
             {{ games.current }}
         </a>
         {% if games.next %}
-        <a href="{{ url_for(request.endpoint, name=data.name , page=games.next) }}"
+        <a href="{{ url_for(request.endpoint, page=games.next) }}"
            class="btn btn-outline-dark">
             {{ games.next }}
         </a>
         {% endif %}
-        <a href="{{ url_for(request.endpoint, name=data.name, page=games.next) }}" class="btn btn-outline-dark {% if not games.next %}disabled{% endif %}">
+        <a href="{{ url_for(request.endpoint, page=games.next) }}" class="btn btn-outline-dark {% if not games.next %}disabled{% endif %}">
         &raquo;
         </a>
     </div>

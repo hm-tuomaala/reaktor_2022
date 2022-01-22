@@ -4,7 +4,7 @@ import json
 import os
 import math
 import urllib.parse
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, make_response
 from flask_apscheduler import APScheduler
 
 app = Flask(__name__)
@@ -227,8 +227,49 @@ def live():
 @app.route("/games")
 def games():
     page = request.args.get("page", 1, type=int)
+    mg_cookie = request.cookies.get("most_games")
 
     data = {}
+
+    games = query_db(
+        """ SELECT id,
+                   DATETIME(ROUND(time / 1000), 'unixepoch', 'localtime') AS time,
+                   player_a,
+                   '(' || a_hand || ')',
+                   '(' || b_hand || ')',
+                   player_b,
+                   winner
+              FROM games
+             ORDER BY 2 DESC """
+    )
+
+    g = [
+        ['{0:<25} {1:<25} <strong>{2:<18} {3:>10}</strong> vs. {4:<11} {5:<}'.format(x[0], x[1], x[2], x[3], x[4], x[5])] if x[2] == x[6] else
+        ['{0:<25} {1:<25} {2:<18} {3:>10} vs. <strong>{4:<11} {5:<}</strong>'.format(x[0], x[1], x[2], x[3], x[4], x[5])] if x[5] == x[6] else
+        ['{0:<25} {1:<25} {2:<18} {3:>10} vs. {4:<11} {5:<}'.format(x[0], x[1], x[2], x[3], x[4], x[5])] for x in games
+    ]
+
+    items_per_page = 200
+    ret_items = paginate(g, items_per_page, page)
+
+    if mg_cookie:
+        # Get stats from the browser memory
+
+        mw_cookie = request.cookies.get("most_wins")
+        br_cookie = request.cookies.get("best_ratio")
+        mph_cookie = request.cookies.get("mph")
+        mvh_cookie = request.cookies.get("mvh")
+
+        data["most_games"] = mg_cookie
+        data["most_wins"] = mw_cookie
+        data["best_ratio"] = br_cookie
+        data["mph"] = mph_cookie
+        data["mvh"] =  mvh_cookie
+
+        print("RETURN DATA FROM COOKIES")
+
+        return render_template('games.html', data=data, games=ret_items)
+
     stats = query_db(
         """ select q1.player || ' (' || q1.games || ')' as most_games,
             q2.player || ' (' || q2.wins || ')' as most_wins,
@@ -291,33 +332,24 @@ def games():
             limit 1) q5 on q1.j = q5.j """
     )
 
-    games = query_db(
-        """ SELECT id,
-                   DATETIME(ROUND(time / 1000), 'unixepoch', 'localtime') AS time,
-                   player_a,
-                   '(' || a_hand || ')',
-                   '(' || b_hand || ')',
-                   player_b,
-                   winner
-              FROM games
-             ORDER BY 2 DESC """
-    )
-
-    g = [
-        ['{0:<25} {1:<25} <strong>{2:<18} {3:>10}</strong> vs. {4:<11} {5:<}'.format(x[0], x[1], x[2], x[3], x[4], x[5])] if x[2] == x[6] else
-        ['{0:<25} {1:<25} {2:<18} {3:>10} vs. <strong>{4:<11} {5:<}</strong>'.format(x[0], x[1], x[2], x[3], x[4], x[5])] if x[5] == x[6] else
-        ['{0:<25} {1:<25} {2:<18} {3:>10} vs. {4:<11} {5:<}'.format(x[0], x[1], x[2], x[3], x[4], x[5])] for x in games
-    ]
-
-    items_per_page = 200
-    ret_items = paginate(g, items_per_page, page)
+    print("DATA FROM THE QUERY")
 
     data["most_games"] = stats[0][0]
     data["most_wins"] = stats[0][1]
     data["best_ratio"] = stats[0][2]
     data["mph"] = stats[0][3]
     data["mvh"] =  stats[0][4]
-    return render_template('games.html', data=data, games=ret_items)
+
+    resp = make_response(render_template('games.html', data=data, games=ret_items))
+
+    resp.set_cookie("most_games", stats[0][0], max_age=5*60)
+    resp.set_cookie("most_wins", stats[0][1], max_age=5*60)
+    resp.set_cookie("best_ratio", stats[0][2], max_age=5*60)
+    resp.set_cookie("mph", stats[0][3], max_age=5*60)
+    resp.set_cookie("mvh", stats[0][4], max_age=5*60)
+
+    return resp
+    # return render_template('games.html', data=data, games=ret_items)
 
 
 

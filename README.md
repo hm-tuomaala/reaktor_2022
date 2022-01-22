@@ -37,3 +37,4 @@ cd rps && python3 db.py
   * Add png to represent played hands
 * Make database updating non-blocking
 * Add tests
+* Add better error pages

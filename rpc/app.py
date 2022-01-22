@@ -3,7 +3,6 @@ import requests
 import json
 import os
 import math
-import urllib.parse
 from flask import Flask, render_template, request, redirect, make_response
 from flask_apscheduler import APScheduler
 
@@ -68,7 +67,7 @@ def update_db_from_history():
             d["data"] = sorted(d["data"], key=lambda x: -x['t'])
             for game in d["data"]:
 
-                # Filter out games where person supposedly played themselves
+                # Filter out games where a person played themselves :D
                 if game["playerA"]["name"] != game["playerB"]["name"]:
                     winner = get_winner(game["playerA"], game["playerB"])
 
@@ -349,7 +348,6 @@ def games():
     resp.set_cookie("mvh", stats[0][4], max_age=5*60)
 
     return resp
-    # return render_template('games.html', data=data, games=ret_items)
 
 
 

@@ -14,7 +14,7 @@ pip3 install -r requirements.txt
 ```bash
 cd rpc && python3 db.py && cd ..
 ```
-* Launch the server (Takes ~15 mins if the database hasn't been initialized previously)
+* Launch the server (Takes ~10 mins if the database hasn't been initialized previously)
 ```bash
 python3 rpc/app.py
 ```
@@ -31,7 +31,7 @@ The app can now be accessed in the [http://localhost:5000/](http://localhost:500
 
 ## Good to Know
 * The application keeps a record of each game in the database so the database will be updated ones the server starts and periodically every 5 minutes
-* Populating the database from scratch takes ~15 minutes and after the first initialization few seconds depending how long the server has been offline
+* Populating the database from scratch takes ~10 minutes and after the first initialization few seconds depending how long the server has been offline
 
 ### Known Issues and Development Ideas
 * Curent database schema is poor and should be changed to a more robust relational structure

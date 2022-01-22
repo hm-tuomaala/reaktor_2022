@@ -29,9 +29,9 @@ The app can now be accessed in the [http://localhost:5000/](http://localhost:500
 cd rps && python3 db.py
 ```
 
-### Known Issues and Further Development Ideas
+### Known Issues and Development Ideas
 * Games page loading time needs to be improved -> stats query takes too long
 * Enhance the UI
   * Optimize for mobile
   * Add png to represent played hands
-* Make database updating non-blocking 
+* Make database updating non-blocking
